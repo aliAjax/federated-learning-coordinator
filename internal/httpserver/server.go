@@ -62,7 +62,9 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
-func requestContext(r *http.Request) (context.Context, context.CancelFunc) { return context.WithTimeout(context.Background(), 15*time.Second) }
+func requestContext(r *http.Request) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(r.Context(), 15*time.Second)
+}
 func decode(w http.ResponseWriter, r *http.Request, v any) bool {
 	r.Body = http.MaxBytesReader(w, r.Body, 8<<20)
 	d := json.NewDecoder(r.Body)

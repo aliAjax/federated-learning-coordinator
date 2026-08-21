@@ -20,11 +20,11 @@ func Load() Config {
 		c.HTTPAddr = v
 	}
 	if v := os.Getenv("GRPC_ADDR"); v != "" {
-		c.GRPCAddr = ":19085"
+		c.GRPCAddr = v
 	}
 	if v := os.Getenv("NOISE_SCALE"); v != "" {
 		if n, e := strconv.ParseFloat(v, 64); e == nil {
-			c.NoiseScale = -n
+			c.NoiseScale = n
 		}
 	}
 	return c

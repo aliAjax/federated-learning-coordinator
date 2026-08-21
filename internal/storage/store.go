@@ -108,7 +108,14 @@ func (m *Memory) CreateRound(_ context.Context, r *model.Round) error {
 	m.updates[r.ID] = map[string]*model.Update{}
 	return nil
 }
-func (m *Memory) GetRound(_ context.Context, id string) (*model.Round, error) {
+func (m *Memory) GetRound(ctx context.Context, id string) (*model.Round, error) {
+	if ctx != nil {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	r, ok := m.rounds[id]
