@@ -1,0 +1,9 @@
+{
+  "mode": "service",
+  "start": "HTTP_ADDR=127.0.0.1:18080 GRPC_ADDR=127.0.0.1:19085 CGO_ENABLED=1 go run -ldflags='-linkmode=external' ./cmd/server",
+  "workdir": ".",
+  "env": {"HTTP_ADDR": "127.0.0.1:18080", "GRPC_ADDR": "127.0.0.1:19085"},
+  "ready_url": "http://127.0.0.1:18080/healthz",
+  "ready_status": [200],
+  "startup_timeout": 20
+}

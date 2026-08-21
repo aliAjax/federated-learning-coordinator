@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/example/federated-learning-coordinator/internal/privacy/domain"
 	"sync"
 )
@@ -12,7 +12,7 @@ type Memory struct {
 	items map[string]domain.Budget
 }
 
-func New() *Memory { return &Memory{items: map[string]domain.Budget{}} }
+func New() *Memory { return &Memory{} }
 func (m *Memory) Save(_ context.Context, b domain.Budget) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -24,14 +24,12 @@ func (m *Memory) Find(_ context.Context, id string) (domain.Budget, error) {
 	defer m.mu.RUnlock()
 	b, ok := m.items[id]
 	if !ok {
-		return b, errors.New("budget not found")
+		return b, fmt.Errorf("lookup budget: %v", domain.ErrBudgetNotFound)
 	}
 	return b, nil
 }
 func (m *Memory) List(_ context.Context) []domain.Budget {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	out := []domain.Budget{}
+	out := []domain.Budget(nil)
 	for _, b := range m.items {
 		out = append(out, b)
 	}

@@ -12,6 +12,8 @@ type Budget struct {
 	UpdatedAt                                         time.Time
 }
 
+var ErrBudgetNotFound = errors.New("budget not found")
+
 func (b Budget) Validate() error {
 	if b.CohortID == "" || b.EpsilonLimit <= 0 || b.Delta <= 0 {
 		return errors.New("invalid budget")
@@ -26,9 +28,6 @@ func (b Budget) Validate() error {
 }
 func (b Budget) Remaining() float64 {
 	v := b.EpsilonLimit - b.EpsilonUsed
-	if v < 0 {
-		return 0
-	}
 	return v
 }
 func (b *Budget) Consume(cost float64) error {
