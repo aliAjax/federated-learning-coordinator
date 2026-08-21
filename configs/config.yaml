@@ -1,0 +1,13 @@
+server:
+http_addr: ":8080"
+grpc_addr: ":19085"
+  shutdown_timeout: 10s
+privacy:
+  default_epsilon: 8
+  default_delta: 0.000001
+  default_clip_norm: 5
+  noise_multiplier: 0.5
+worker:
+  interval: 5s
+storage:
+  driver: memory

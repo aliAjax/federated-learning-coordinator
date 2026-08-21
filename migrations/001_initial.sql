@@ -1,0 +1,6 @@
+CREATE TABLE cohorts (id TEXT PRIMARY KEY, name TEXT NOT NULL, model_version TEXT NOT NULL, status TEXT NOT NULL, epsilon DOUBLE PRECISION NOT NULL, delta DOUBLE PRECISION NOT NULL, clip_norm DOUBLE PRECISION NOT NULL, created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE participants (id TEXT PRIMARY KEY, cohort_id TEXT NOT NULL, name TEXT NOT NULL, status TEXT NOT NULL, token_hash TEXT NOT NULL, capabilities JSONB NOT NULL, created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE rounds (id TEXT PRIMARY KEY, cohort_id TEXT NOT NULL, model_version TEXT NOT NULL, status TEXT NOT NULL, min_participants INT NOT NULL, max_participants INT NOT NULL, deadline TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE updates (id TEXT PRIMARY KEY, round_id TEXT NOT NULL, participant_id TEXT NOT NULL, payload BYTEA NOT NULL, payload_hash TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL, UNIQUE(round_id, participant_id));
+CREATE TABLE models (id TEXT PRIMARY KEY, cohort_id TEXT NOT NULL, version TEXT NOT NULL, payload BYTEA NOT NULL, digest TEXT NOT NULL, published_at TIMESTAMPTZ);
+CREATE TABLE privacy_budgets (cohort_id TEXT PRIMARY KEY, epsilon_used DOUBLE PRECISION NOT NULL, delta DOUBLE PRECISION NOT NULL, updated_at TIMESTAMPTZ NOT NULL);

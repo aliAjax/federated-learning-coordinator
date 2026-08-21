@@ -1,0 +1,12 @@
+openapi: 3.0.3
+info:
+  title: Federated Learning Coordinator
+  version: 1.0.0
+paths:
+  /v1/cohorts: {post: {summary: Create cohort}}
+  /v1/participants: {post: {summary: Register participant}}
+  /v1/rounds: {post: {summary: Create round}}
+  /v1/rounds/{id}/updates: {post: {summary: Submit update}}
+  /v1/rounds/{id}/aggregate: {post: {summary: Aggregate}}
+  /v1/models/{id}/publish: {post: {summary: Publish}}
+  /v1/privacy-budgets: {get: {summary: Privacy budgets}}
