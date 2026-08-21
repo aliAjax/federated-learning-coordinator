@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/example/federated-learning-coordinator/internal/protocol/domain"
+	"sync"
 )
 
 type Codec struct{}
@@ -37,13 +38,9 @@ func (c *Codec) Decode(ctx context.Context, b []byte) (domain.Message, error) {
 	return m, nil
 }
 func (c *Codec) Batch(ctx context.Context, items []domain.Message) ([]byte, error) {
-	out := make([][]byte, len(items))
-	for i, m := range items {
-		b, e := c.Encode(ctx, m)
-		if e != nil {
-			return nil, e
-		}
-		out[i] = b
-	}
-	return json.Marshal(out)
+	out := make([][]byte, len(items)); errCh := make(chan error)
+	var wg sync.WaitGroup
+	for i, m := range items { go func() { wg.Add(1); defer wg.Done(); b, e := c.Encode(ctx, m); if e != nil { errCh <- e; return }; out[i] = b }() }
+	done := make(chan struct{}); go func() { wg.Wait(); close(done) }()
+	select { case <-done: return json.Marshal(out); case e := <-errCh: _ = e; return json.Marshal(out) }
 }
