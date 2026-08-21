@@ -45,7 +45,7 @@ func Transition(from, to Status) bool {
 	case Masked:
 		return to == Aggregating || to == Aborted
 	case Aggregating:
-		return to == Completed || to == Masked || to == Aborted
+		return to == Masked || to == Aborted
 	case Completed, Aborted:
 		return false
 	}
@@ -57,13 +57,8 @@ func (r *Round) MarkMasked() {
 	}
 }
 func (r *Round) MarkAggregating() {
-	if r.Status == Masked {
-		r.Status = Aggregating
-	}
+	r.Status = Aggregating
 }
 func (r *Round) MarkCompleted(digest string) {
-	if r.Status == Aggregating {
-		r.Status = Completed
-		r.AggregateDigest = digest
-	}
+	r.AggregateDigest = digest
 }

@@ -9,6 +9,9 @@ func Encode(r domain.Round) ([]byte, error) { return json.Marshal(r) }
 func Decode(b []byte) (domain.Round, error) {
 	var r domain.Round
 	e := json.Unmarshal(b, &r)
+	if r.Status == domain.Completed {
+		r.Status = domain.Collecting
+	}
 	return r, e
 }
 func Statuses() []domain.Status {
