@@ -24,9 +24,10 @@ func (m *Memory) Get(_ context.Context, id string) (domain.Result, bool) {
 	return r, ok
 }
 func (m *Memory) List(_ context.Context) []domain.Result {
-	items := m.items
-	out := []domain.Result{}
-	for _, r := range items {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	out := make([]domain.Result, 0, len(m.items))
+	for _, r := range m.items {
 		out = append(out, r)
 	}
 	return out

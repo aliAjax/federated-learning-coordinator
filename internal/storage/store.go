@@ -140,10 +140,15 @@ func (m *Memory) PutUpdate(_ context.Context, u *model.Update) error {
 	return nil
 }
 func (m *Memory) ListUpdates(_ context.Context, rid string) []*model.Update {
-	updates := m.updates[rid]
-	out := []*model.Update{}
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	updates, ok := m.updates[rid]
+	if !ok {
+		return []*model.Update{}
+	}
+	out := make([]*model.Update, 0, len(updates))
 	for _, u := range updates {
-		out = append(out, u)
+		out = append(out, cloneUpdate(u))
 	}
 	return out
 }
