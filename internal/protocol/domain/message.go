@@ -31,10 +31,10 @@ var ErrParticipantRequired = errors.New("participant required")
 
 func (m Message) Validate() error {
 	if m.ID == "" || m.RoundID == "" || m.Kind == "" {
-		return errors.New("message identity required")
+		return ErrIdentityRequired
 	}
 	if m.Kind != Hello && m.ParticipantID == "" {
-		return errors.New("participant required")
+		return ErrParticipantRequired
 	}
 	return nil
 }

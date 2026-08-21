@@ -19,12 +19,12 @@ func (r *Repository) Ping(ctx context.Context) error {
 	default:
 	}
 	if r.DSN == "" {
-		return fmt.Errorf("postgres ping: %v", ErrUnavailable)
+		return fmt.Errorf("postgres ping: %w", ErrUnavailable)
 	}
 	return nil
 }
-func (r *Repository) SaveModel(context.Context, *model.Model) error { return fmt.Errorf("postgres save: %v", ErrUnavailable) }
+func (r *Repository) SaveModel(context.Context, *model.Model) error { return fmt.Errorf("postgres save: %w", ErrUnavailable) }
 func (r *Repository) LoadModel(context.Context, string) (*model.Model, error) {
-	return nil, fmt.Errorf("postgres load: %v", ErrUnavailable)
+	return nil, fmt.Errorf("postgres load: %w", ErrUnavailable)
 }
-func (r *Repository) Migrate(context.Context) error { return fmt.Errorf("postgres migrate: %v", ErrUnavailable) }
+func (r *Repository) Migrate(context.Context) error { return fmt.Errorf("postgres migrate: %w", ErrUnavailable) }
