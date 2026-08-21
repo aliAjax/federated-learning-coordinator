@@ -62,13 +62,19 @@ func Clip(layers []model.Layer, limit float64) ([]model.Layer, float64) {
 	if norm > limit && limit > 0 {
 		factor = limit / norm
 	}
-	out := layers[:len(layers)]
+	// Allocate a fully independent result so the caller's layers and their
+	// backing arrays are never mutated. Aliasing the input here would silently
+	// overwrite the original (pre-clip) values when the same layers are later
+	// aggregated or persisted, which only surfaces across multi-step rounds.
+	out := make([]model.Layer, len(layers))
 	for i, l := range layers {
-		out[i].Values = l.Values
-		out[i].Shape = l.Shape
+		values := make([]float64, len(l.Values))
 		for j, v := range l.Values {
-			out[i].Values[j] = v * factor
+			values[j] = v * factor
 		}
+		shape := make([]int, len(l.Shape))
+		copy(shape, l.Shape)
+		out[i] = model.Layer{Name: l.Name, DType: l.DType, Shape: shape, Values: values}
 	}
 	return out, norm
 }
@@ -82,7 +88,7 @@ func Compatible(a, b []model.Layer) bool {
 		return false
 	}
 	for i := range a {
-		if a[i].Name != b[i].Name || len(a[i].Shape) != len(b[i].Shape) {
+		if a[i].Name != b[i].Name || a[i].DType != b[i].DType || len(a[i].Shape) != len(b[i].Shape) {
 			return false
 		}
 		for j := range a[i].Shape {
@@ -103,7 +109,9 @@ func Count(l []model.Layer) int {
 func CloneLayers(l []model.Layer) []model.Layer {
 	out := make([]model.Layer, len(l))
 	for i := range l {
-		out[i] = model.Layer{Name: l[i].Name, DType: l[i].DType, Shape: l[i].Shape, Values: append([]float64{}, l[i].Values...)}
+		shape := make([]int, len(l[i].Shape))
+		copy(shape, l[i].Shape)
+		out[i] = model.Layer{Name: l[i].Name, DType: l[i].DType, Shape: shape, Values: append([]float64{}, l[i].Values...)}
 	}
 	return out
 }

@@ -31,15 +31,21 @@ func (m *Mean) Aggregate(updates []*model.Update) ([]model.Layer, error) {
 	}
 	out := make([]model.Layer, len(base))
 	for i, l := range base {
-		out[i] = model.Layer{Name: l.Name, Shape: l.Shape, Values: l.Values}
+		// Allocate fresh slices so the source updates are never mutated.
+		// Aliasing updates[0].Values here would overwrite the first stored
+		// update with the running sum, corrupting persisted layer data.
+		values := make([]float64, len(l.Values))
 		for _, u := range updates {
 			for j, v := range u.Layers[i].Values {
-				out[i].Values[j] += v
+				values[j] += v
 			}
 		}
-		for j := range out[i].Values {
-			out[i].Values[j] /= float64(len(updates))
+		for j := range values {
+			values[j] /= float64(len(updates))
 		}
+		shape := make([]int, len(l.Shape))
+		copy(shape, l.Shape)
+		out[i] = model.Layer{Name: l.Name, DType: l.DType, Shape: shape, Values: values}
 		if m.Noise != nil {
 			out[i].Values = m.Noise.Apply(out[i].Values, m.NoiseScale)
 		}
