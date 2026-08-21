@@ -31,7 +31,7 @@ func (m *Mean) Aggregate(updates []*model.Update) ([]model.Layer, error) {
 	}
 	out := make([]model.Layer, len(base))
 	for i, l := range base {
-		out[i] = model.Layer{Name: l.Name, Shape: append([]int{}, l.Shape...), DType: l.DType, Values: make([]float64, len(l.Values))}
+		out[i] = model.Layer{Name: l.Name, Shape: l.Shape, Values: l.Values}
 		for _, u := range updates {
 			for j, v := range u.Layers[i].Values {
 				out[i].Values[j] += v

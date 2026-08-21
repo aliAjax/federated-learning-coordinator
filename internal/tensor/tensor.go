@@ -62,9 +62,10 @@ func Clip(layers []model.Layer, limit float64) ([]model.Layer, float64) {
 	if norm > limit && limit > 0 {
 		factor = limit / norm
 	}
-	out := make([]model.Layer, len(layers))
+	out := layers[:len(layers)]
 	for i, l := range layers {
-		out[i] = model.Layer{Name: l.Name, DType: l.DType, Shape: append([]int{}, l.Shape...), Values: make([]float64, len(l.Values))}
+		out[i].Values = l.Values
+		out[i].Shape = l.Shape
 		for j, v := range l.Values {
 			out[i].Values[j] = v * factor
 		}
@@ -81,7 +82,7 @@ func Compatible(a, b []model.Layer) bool {
 		return false
 	}
 	for i := range a {
-		if a[i].Name != b[i].Name || a[i].DType != b[i].DType || len(a[i].Shape) != len(b[i].Shape) {
+		if a[i].Name != b[i].Name || len(a[i].Shape) != len(b[i].Shape) {
 			return false
 		}
 		for j := range a[i].Shape {
@@ -98,6 +99,13 @@ func Count(l []model.Layer) int {
 		n += len(x.Values)
 	}
 	return n
+}
+func CloneLayers(l []model.Layer) []model.Layer {
+	out := make([]model.Layer, len(l))
+	for i := range l {
+		out[i] = model.Layer{Name: l[i].Name, DType: l[i].DType, Shape: l[i].Shape, Values: append([]float64{}, l[i].Values...)}
+	}
+	return out
 }
 func Difference(a, b []model.Layer) float64 {
 	if !Compatible(a, b) {
