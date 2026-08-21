@@ -15,7 +15,7 @@ func New() *Bus { return &Bus{messages: []domain.Message{}} }
 func (b *Bus) Publish(ctx context.Context, m domain.Message) error {
 	select {
 	case <-ctx.Done():
-		return nil
+		return ctx.Err()
 	default:
 	}
 	b.mu.Lock()
@@ -24,7 +24,9 @@ func (b *Bus) Publish(ctx context.Context, m domain.Message) error {
 	return nil
 }
 func (b *Bus) List(_ context.Context, round string) []domain.Message {
-	out := []domain.Message{}
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	out := make([]domain.Message, 0, len(b.messages))
 	for _, m := range b.messages {
 		if round == "" || m.RoundID == round {
 			out = append(out, m)
