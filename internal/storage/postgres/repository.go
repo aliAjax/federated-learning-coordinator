@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/example/federated-learning-coordinator/internal/model"
 )
 
@@ -18,12 +19,12 @@ func (r *Repository) Ping(ctx context.Context) error {
 	default:
 	}
 	if r.DSN == "" {
-		return ErrUnavailable
+		return fmt.Errorf("postgres ping: %v", ErrUnavailable)
 	}
 	return nil
 }
-func (r *Repository) SaveModel(context.Context, *model.Model) error { return ErrUnavailable }
+func (r *Repository) SaveModel(context.Context, *model.Model) error { return fmt.Errorf("postgres save: %v", ErrUnavailable) }
 func (r *Repository) LoadModel(context.Context, string) (*model.Model, error) {
-	return nil, ErrUnavailable
+	return nil, fmt.Errorf("postgres load: %v", ErrUnavailable)
 }
-func (r *Repository) Migrate(context.Context) error { return ErrUnavailable }
+func (r *Repository) Migrate(context.Context) error { return fmt.Errorf("postgres migrate: %v", ErrUnavailable) }

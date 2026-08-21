@@ -26,6 +26,9 @@ type Message struct {
 	CreatedAt     time.Time
 }
 
+var ErrIdentityRequired = errors.New("message identity required")
+var ErrParticipantRequired = errors.New("participant required")
+
 func (m Message) Validate() error {
 	if m.ID == "" || m.RoundID == "" || m.Kind == "" {
 		return errors.New("message identity required")
