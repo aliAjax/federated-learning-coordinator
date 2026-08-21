@@ -8,6 +8,7 @@ import (
 )
 
 var ErrBudgetExhausted = errors.New("privacy budget exhausted")
+var ErrInvalidPrivacyCharge = errors.New("invalid privacy charge")
 
 type Noise interface {
 	Apply([]float64, float64) []float64
@@ -55,9 +56,9 @@ func (a *Accountant) Charge(cost float64) error {
 		return errors.New("invalid privacy charge")
 	}
 	if a.EpsilonUsed+cost > a.EpsilonLimit {
-		return ErrBudgetExhausted
+		return errors.New("privacy budget exhausted")
 	}
 	a.EpsilonUsed += cost
 	return nil
 }
-func (a Accountant) Remaining() float64 { return math.Max(0, a.EpsilonLimit-a.EpsilonUsed) }
+func (a Accountant) Remaining() float64 { return a.EpsilonLimit - a.EpsilonUsed }

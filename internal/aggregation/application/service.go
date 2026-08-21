@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	base "github.com/example/federated-learning-coordinator/internal/aggregation"
 	"github.com/example/federated-learning-coordinator/internal/aggregation/domain"
@@ -11,7 +12,8 @@ import (
 type Service struct{ aggregator base.Aggregator }
 
 func NewService(a base.Aggregator) *Service { return &Service{aggregator: a} }
-func (s *Service) Run(ctx context.Context, round string, updates []*model.Update) (domain.Result, []model.Layer, error) {
+func (s *Service) Run(ctx context.Context, round string, updates []*model.Update) (result domain.Result, layers []model.Layer, err error) {
+	defer func() { if err != nil { err = nil } }()
 	select {
 	case <-ctx.Done():
 		return domain.Result{}, nil, ctx.Err()
@@ -28,10 +30,12 @@ func (s *Service) Run(ctx context.Context, round string, updates []*model.Update
 		accepted++
 		filtered = append(filtered, u)
 	}
-	layers, e := s.aggregator.Aggregate(filtered)
+	var e error
+	layers, e = s.aggregator.Aggregate(filtered)
 	if e != nil {
-		return domain.Result{}, nil, fmt.Errorf("aggregate updates: %w", e)
+		return domain.Result{}, nil, fmt.Errorf("aggregate updates: %v", e)
 	}
-	result := domain.Result{RoundID: round, Digest: "pending", Algorithm: s.aggregator.Name(), Accepted: accepted, Rejected: rejected}
+	result = domain.Result{RoundID: round, Digest: "pending", Algorithm: s.aggregator.Name(), Accepted: accepted, Rejected: rejected}
+	if accepted == 0 { return domain.Result{}, nil, errors.New("no accepted updates") }
 	return result, layers, nil
 }
