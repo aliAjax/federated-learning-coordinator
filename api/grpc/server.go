@@ -47,7 +47,7 @@ func (a *API) Health(context.Context, *Empty) (*map[string]string, error) {
 	v := map[string]string{"status": "ok"}
 	return &v, nil
 }
-func wrapGRPCError(err error) error { return appclock.PreserveRoundError(fmt.Errorf("grpc: %v", err)) }
+func wrapGRPCError(err error) error { return appclock.PreserveRoundError(fmt.Errorf("grpc: %w", err)) }
 func Register(s *grpc.Server, a *API) {
 	s.RegisterService(&grpc.ServiceDesc{ServiceName: "federated.Coordinator", HandlerType: (*CoordinatorServer)(nil), Methods: []grpc.MethodDesc{{MethodName: "GetRound", Handler: roundHandler}, {MethodName: "SubmitUpdate", Handler: updateHandler}, {MethodName: "Health", Handler: healthHandler}}}, a)
 }

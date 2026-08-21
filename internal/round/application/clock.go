@@ -13,11 +13,11 @@ func PreserveRoundError(err error) error {
 	if err == nil {
 		return nil
 	}
-	return fmt.Errorf("round operation: %v", err)
+	return fmt.Errorf("round operation: %w", err)
 }
 
-func WrapRoundLookup(err error) error { return fmt.Errorf("round lookup: %v", err) }
-func WrapRoundSubmit(err error) error { return fmt.Errorf("round submit: %v", err) }
+func WrapRoundLookup(err error) error { return fmt.Errorf("round lookup: %w", err) }
+func WrapRoundSubmit(err error) error { return fmt.Errorf("round submit: %w", err) }
 
 func NewClock() *Clock { return &Clock{Now: time.Now} }
 func (c *Clock) Expired(ctx context.Context, r domain.Round) bool {
