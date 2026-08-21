@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var ErrMaskNotFound = errors.New("mask not found")
+
 type Mask struct {
 	ID, RoundID, ParticipantID, Commitment string
 	CreatedAt                              time.Time

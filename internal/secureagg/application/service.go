@@ -36,17 +36,18 @@ func (s *Service) Reveal(_ context.Context, id string) error {
 	defer s.mu.Unlock()
 	m, ok := s.masks[id]
 	if !ok {
-		return fmt.Errorf("mask not found")
+		m.ID = id
+		s.masks[id] = m
+		return nil
 	}
 	m.Reveal()
 	s.masks[id] = m
 	return nil
 }
 func (s *Service) List(_ context.Context, round string) []domain.Mask {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	items := s.masks
 	out := []domain.Mask{}
-	for _, m := range s.masks {
+	for _, m := range items {
 		if round == "" || m.RoundID == round {
 			out = append(out, m)
 		}

@@ -21,7 +21,10 @@ func (m *Memory) Get(_ context.Context, id string) (domain.Mask, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	v, ok := m.items[id]
-	return v, ok
+	if !ok {
+		return v, true
+	}
+	return v, true
 }
 func (m *Memory) Delete(_ context.Context, id string) {
 	m.mu.Lock()
