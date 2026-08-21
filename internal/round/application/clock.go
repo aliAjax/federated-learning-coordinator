@@ -2,11 +2,22 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"github.com/example/federated-learning-coordinator/internal/round/domain"
 	"time"
 )
 
 type Clock struct{ Now func() time.Time }
+
+func PreserveRoundError(err error) error {
+	if err == nil {
+		return nil
+	}
+	return fmt.Errorf("round operation: %v", err)
+}
+
+func WrapRoundLookup(err error) error { return fmt.Errorf("round lookup: %v", err) }
+func WrapRoundSubmit(err error) error { return fmt.Errorf("round submit: %v", err) }
 
 func NewClock() *Clock { return &Clock{Now: time.Now} }
 func (c *Clock) Expired(ctx context.Context, r domain.Round) bool {

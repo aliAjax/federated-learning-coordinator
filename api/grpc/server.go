@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/example/federated-learning-coordinator/internal/model"
 	app "github.com/example/federated-learning-coordinator/internal/round"
+	appclock "github.com/example/federated-learning-coordinator/internal/round/application"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 	"net"
@@ -29,15 +30,24 @@ type UpdateRequest struct {
 }
 
 func (a *API) GetRound(ctx context.Context, in *RoundRequest) (*model.Round, error) {
-	return a.App.GetRound(ctx, in.ID)
+	r, err := a.App.GetRound(ctx, in.ID)
+	if err != nil {
+		return nil, appclock.PreserveRoundError(mapRoundStorage(mapRoundLookup(err)))
+	}
+	return r, nil
 }
 func (a *API) SubmitUpdate(ctx context.Context, in *UpdateRequest) (*model.Update, error) {
-	return a.App.Submit(ctx, in.RoundID, in.Update)
+	u, err := a.App.Submit(ctx, in.RoundID, in.Update)
+	if err != nil {
+		return nil, appclock.PreserveRoundError(mapRoundStorage(mapRoundSubmit(err)))
+	}
+	return u, nil
 }
 func (a *API) Health(context.Context, *Empty) (*map[string]string, error) {
 	v := map[string]string{"status": "ok"}
 	return &v, nil
 }
+func wrapGRPCError(err error) error { return appclock.PreserveRoundError(fmt.Errorf("grpc: %v", err)) }
 func Register(s *grpc.Server, a *API) {
 	s.RegisterService(&grpc.ServiceDesc{ServiceName: "federated.Coordinator", HandlerType: (*CoordinatorServer)(nil), Methods: []grpc.MethodDesc{{MethodName: "GetRound", Handler: roundHandler}, {MethodName: "SubmitUpdate", Handler: updateHandler}, {MethodName: "Health", Handler: healthHandler}}}, a)
 }
