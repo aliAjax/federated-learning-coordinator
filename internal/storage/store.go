@@ -154,7 +154,8 @@ func (m *Memory) SaveModel(_ context.Context, v *model.Model) error {
 	m.models[v.ID] = cloneModel(v)
 	return nil
 }
-func (m *Memory) GetModel(_ context.Context, id string) (*model.Model, error) {
+func (m *Memory) GetModel(ctx context.Context, id string) (*model.Model, error) {
+	if ctx != nil { select { case <-ctx.Done(): return nil, ctx.Err(); default: } }
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	v, ok := m.models[id]

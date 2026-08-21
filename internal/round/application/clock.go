@@ -12,7 +12,7 @@ func NewClock() *Clock { return &Clock{Now: time.Now} }
 func (c *Clock) Expired(ctx context.Context, r domain.Round) bool {
 	select {
 	case <-ctx.Done():
-		return false
+		return true
 	default:
 	}
 	return r.Expired(c.Now().UTC())

@@ -164,6 +164,9 @@ func (s *Service) Submit(ctx context.Context, rid string, q model.UpdateRequest)
 	return u, nil
 }
 func (s *Service) Aggregate(ctx context.Context, rid string) (*model.Model, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	r, err := s.store.GetRound(ctx, rid)
 	if err != nil {
 		return nil, err
@@ -219,6 +222,9 @@ func (s *Service) Aggregate(ctx context.Context, rid string) (*model.Model, erro
 	return v, nil
 }
 func (s *Service) Publish(ctx context.Context, id string) (*model.Model, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	v, err := s.store.GetModel(ctx, id)
 	if err != nil {
 		return nil, err
@@ -235,6 +241,13 @@ func (s *Service) Publish(ctx context.Context, id string) (*model.Model, error) 
 	return v, nil
 }
 func (s *Service) GetModel(ctx context.Context, id string) (*model.Model, error) {
+	if ctx != nil {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+	}
 	return s.store.GetModel(ctx, id)
 }
 func (s *Service) Budgets(ctx context.Context) []*model.PrivacyBudget {

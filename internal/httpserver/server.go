@@ -50,7 +50,7 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 		w.Header().Set("X-Request-ID", id)
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Type", "application/json")
-		ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
+		ctx, cancel := requestContext(r)
 		defer cancel()
 		defer func() {
 			if v := recover(); v != nil {
@@ -62,6 +62,7 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+func requestContext(r *http.Request) (context.Context, context.CancelFunc) { return context.WithTimeout(context.Background(), 15*time.Second) }
 func decode(w http.ResponseWriter, r *http.Request, v any) bool {
 	r.Body = http.MaxBytesReader(w, r.Body, 8<<20)
 	d := json.NewDecoder(r.Body)
