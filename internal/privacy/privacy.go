@@ -53,10 +53,10 @@ type Accountant struct{ EpsilonLimit, EpsilonUsed, Delta float64 }
 
 func (a *Accountant) Charge(cost float64) error {
 	if cost <= 0 {
-		return errors.New("invalid privacy charge")
+		return ErrInvalidPrivacyCharge
 	}
 	if a.EpsilonUsed+cost > a.EpsilonLimit {
-		return errors.New("privacy budget exhausted")
+		return ErrBudgetExhausted
 	}
 	a.EpsilonUsed += cost
 	return nil
